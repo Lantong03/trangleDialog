@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>气泡框</title>
+		<script src="jquery.js"></script>
+		<style>
+			*{
+				padding:0;
+				margin:0;
+			}
+			.wrap{
+				margin-left:800px;
+				margin-top:100px;
+			}
+			.trangleDialog{
+				position:absolute;
+				width:318px;
+				height:206px;
+				border:1px solid rgb(124, 159, 227);
+				background-color:#fff;
+			}
+			.trangleDialog i, .trangleDialog em{
+				position:absolute;
+				display:inline-block;
+				font-size:0;
+				line-height: 0;						
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<a class="supportBank">支持银行</a>
+		</div>
+		<script>
+		(function($){
+			var defaultConfig = {
+				tranWidth:10,
+				tranHeight:8,
+				rightAlign:false,
+				liveEvent:'click'
+			};
+			var trangleDialog = {
+				init:function(options){
+					this.options = $.extend({}, defaultConfig, options);
+					this.dom = $(this.options.dom);
+					this.prepareDiv();
+					this.bindEvent();
+				},
+				prepareDiv: function(){
+					var options = this.options,
+						pos = this.dom.offset();
+					pos.height = this.dom.outerHeight();
+					this.div = $('<div class="trangleDialog"><i></i><em></em></div>').appendTo(document.body).hide();
+				},
+				bindEvent: function(){
+					var options = this.options,
+						me = this;
+					if(options.liveEvent == 'hover'){
+						this.dom.hover(function(){
+							t = setTimeout(function(){
+								me.show();
+							}, 300);
+						}, function(){
+							clearTimeout(t);
+							me.hide();
+						})
+					}else{
+						this.dom.bind(options.liveEvent, function(){
+							me.show();
+						});
+					}
+				},
+				realCalPosition:function(){
+					var options = this.options,
+						btn = this.dom,
+						div = this.div;
+					var target = btn.offset();
+					target.width = btn.outerWidth();
+					target.height = btn.outerHeight();
+					var trangle = {};
+					trangle.height = options.tranHeight;
+					trangle.width = options.tranWidth;						
+					trangle.borderWidth = trangle.height + 'px ' +Math.round(trangle.width/2) + 'px';
+					var box = {};
+					box.width = div.outerWidth();
+					box.height = div.outerHeight();
+					box.borderColor = div.css('border-top-color');
+					box.borderWidth = parseInt(div.css('border-top-width'));
+					box.bgColor = div.css('background-color');
+					trangle.offWidth = Math.round((target.width-trangle.width)/2);//可能为负，没判断哟！
+					trangle.offHeight = Math.round(Math.sqrt(2*box.borderWidth));
+					trangle.offHeight = trangle.offHeight<1? 1 : trangle.offHeight;						
+					if( ((target.left+box.width-$(document).scrollLeft()) > $(window).width()) || options.rightAlign){//右对齐
+						box.left = target.left + target.width - box.width;
+						trangle.left = box.width - trangle.offWidth - trangle.width;
+					}else{
+						box.left = target.left;
+						trangle.left = trangle.offWidth;
+					}
+					if((target.top+target.height+trangle.height+box.height-$(document).scrollTop()) > $(window).height()){//上对齐
+						box.top = target.top - trangle.height - box.height;
+						trangle.borStyle = 'solid dashed dashed';
+						trangle.iBorCol = box.borderColor+' transparent transparent';
+						trangle.iTop = div.innerHeight();//box.height;
+						trangle.eBorCol = box.bgColor+' transparent transparent';
+						trangle.eTop = trangle.iTop-trangle.offHeight;
+					}else{
+						box.top = target.top + target.height + trangle.height;
+						trangle.borStyle = 'dashed dashed solid';
+						trangle.iBorCol = 'transparent transparent '+box.borderColor;
+						trangle.iTop = -2*trangle.height;
+						trangle.eBorCol = 'transparent transparent '+box.bgColor;
+						trangle.eTop = trangle.iTop+trangle.offHeight;
+					}
+					div.css({
+						'left':box.left + 'px',
+						'top':box.top + 'px'
+					});
+					$('i,em', div).css({
+						'border-width': trangle.borderWidth,
+						'left': trangle.left,
+						'border-style':trangle.borStyle
+					});
+					$('i', div).css({
+						'border-color':trangle.iBorCol,
+						'top':trangle.iTop
+					})
+					$('em', div).css({
+						'border-color':trangle.eBorCol,
+						'top':trangle.eTop
+					});
+				},
+				show: function(){
+					this.realCalPosition();
+					this.div.show();
+				},
+				hide: function(){
+					this.div.hide();
+				}
+			};
+
+			$.fn.popDialog = function(options){
+				trangleDialog.init($.extend({}, options || {}, {
+					dom: this
+				}));
+				return trangleDialog;
+			};
+		})(jQuery);		
+		</script>
+		<script>
+			var test = $('.supportBank').popDialog({
+				liveEvent:'hover',
+				rightAlign: true
+				//closeEvent:'mouseout'
+			});
+			// $('.supportBank').bind('mouseout',function(){
+			// 	test.hide();
+			// })
+		</script>
+	</body>
+</html>

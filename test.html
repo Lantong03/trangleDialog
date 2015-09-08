@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>test</title>
+		<script src="jquery.js"></script>
+		<style>
+			.demo{
+				margin:100px auto;
+				width:300px;
+				height:200px;
+				background-color:#ededed;
+				position: relative;
+			}
+			.children{
+				background-color: #00cc99;
+				width:200px;
+				height:150px;
+				position: absolute;
+				right:0;
+				top:0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="demo">
+			<div class="children">
+			</div>
+		</div>
+		<script>
+			$(document).ready(function(){
+				var $div = $('.demo');
+				// $div.mouseover(function(){
+				// 	$(this).children().slideDown();
+				// }).mouseout(function(){
+				// 	$(this).children().slideUp();
+				// })
+				$('.demo').hover(function(){
+					var $div = $('.demo');
+					// setTimeout(function(){
+					// 	$div.children().slideDown(300);
+					// }, 300)
+					t = setTimeout(function(){
+						$div.children().slideDown(300);
+					}, 1000);
+				}, function(){
+					clearInterval(t);
+					$(this).children().slideUp();
+				});
+			})
+		</script>
+	</body>
+</html>
